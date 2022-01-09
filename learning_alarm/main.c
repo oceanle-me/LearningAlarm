@@ -45,12 +45,14 @@ int main(void){
 
 
 ISR (TIMER2_OVF_vect ){
-	if (time_learn < (PERIOD_LEARNING*3662)){ //3662= (60*16e6) / (1024*256)
+	SMCR = 0;//disable sleep mode
+	if (time_learn < (73240)){ //3662= (60*16e6) / (1024*256)
 		//PORTB^=0xff; //reverse B2 LED
 		++time_learn;
 		SMCR= (1<<SM1)|(1<<SM0)|(1<<SE);//go to power-save mode, wake up with timer 2 overflows
 	}
 	else {
+
 		TCCR2B =0;//stop timer2
 		RepeatAlarm();//repeat infinitely until reset
 	}
@@ -58,8 +60,8 @@ ISR (TIMER2_OVF_vect ){
 }
 
 void RepeatAlarm(void){
-	unsigned int  counter_In1_Alarm =0; //ms
-	unsigned int  counter_In2_Alarm =0;
+	uint32_t  counter_In1_Alarm =0; //ms
+	uint32_t  counter_In2_Alarm =0;
 
 	while(1){//repeat infinitely until reset
 	if (counter_In1_Alarm  < 1000){
@@ -74,7 +76,7 @@ void RepeatAlarm(void){
 		}
 		counter_In2_Alarm++;
 	}
-	else if (counter_In1_Alarm  < (PERIOD_ALARM_REPEAT*1000*60))/*ms*/{
+	else if (counter_In1_Alarm  < (180000))/*ms*/{
 		PORTD=0b000;
 	}
 	else{
